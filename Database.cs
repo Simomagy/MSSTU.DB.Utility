@@ -12,6 +12,7 @@
 
 #region
 
+using System.Data;
 using Microsoft.Data.SqlClient;
 
 #endregion
@@ -24,6 +25,8 @@ namespace MSSTU.DB.Utility
     public class Database : IDatabase
     {
 
+        private readonly string _connectionString;
+        private SqlConnection _connection;
         /// <summary>
         ///     Costruttore della classe <see cref="Database" />. Inizializza la connessione al database
         /// </summary>
@@ -35,36 +38,34 @@ namespace MSSTU.DB.Utility
         /// </param>
         public Database(string dbName, string server = "MSSTU")
         {
-            Connection = new SqlConnection(
-                $"Data Source={server};Initial Catalog={dbName};Integrated Security=True;Encrypt=True;TrustServerCertificate=True;");
+            _connectionString = $"Data Source={server};Initial Catalog={dbName};Integrated Security=True;Encrypt=True;TrustServerCertificate=True;";
+            _connection = new SqlConnection(_connectionString);
         }
-        SqlConnection Connection { get; }
 
-        /// <summary>
-        ///     Metodo che legge i record di una tabella del database
-        /// </summary>
-        /// <remarks>
-        ///     Legge i record e li aggiunge a una <see cref="List{T}" /> di <see cref="Dictionary{TKey, TValue}" /> dove la key è
-        ///     il nome della colonna
-        ///     e il valore è il valore in essa
-        /// </remarks>
-        /// <param name="query">
-        ///    Query parametrizzata da eseguire
-        /// </param>
-        /// <param name="parameters">
-        ///   Parametri della query
-        /// </param>
-        /// <returns></returns>
-        public List<Dictionary<string, string>>? ReadDb(string query, Dictionary<string, object> parameters)
+        private SqlConnection Connection
+        {
+            get
+            {
+                if (_connection.State is ConnectionState.Closed or ConnectionState.Broken)
+                {
+                    _connection = new SqlConnection(_connectionString);
+                }
+                return _connection;
+            }
+        }
+
+        /// <inheritdoc cref="IDatabase.ReadDb"/>
+        public List<Dictionary<string, string>>? ReadDb(string query, Dictionary<string, object>? parameters = null)
         {
             try
             {
-                using (Connection)
+                using (var connection = Connection)
                 {
-                    Connection.Open();
-                    using (SqlCommand cmd = new(query, Connection))
+                    connection.Open();
+                    using (SqlCommand cmd = new(query, connection))
                     {
-                        AddParameters(cmd, parameters);
+                        if (parameters != null)
+                            AddParameters(cmd, parameters);
                         using (var dr = cmd.ExecuteReader())
                         {
                             List<Dictionary<string, string>> response = new();
@@ -95,26 +96,18 @@ namespace MSSTU.DB.Utility
             }
         }
 
-        /// <summary>
-        ///     Esegue una query di inserimento nel database
-        /// </summary>
-        /// <param name="query">
-        ///    Query parametrizzata da eseguire
-        /// </param>
-        /// <param name="parameters">
-        ///   Parametri della query
-        /// </param>
-        /// <returns><see langword="true" /> se l'inserimento è andato a buon fine, <see langword="false" /> altrimenti</returns>
-        public bool UpdateDb(string query, Dictionary<string, object> parameters)
+        /// <inheritdoc cref="IDatabase.UpdateDb"/>
+        public bool UpdateDb(string query, Dictionary<string, object>? parameters = null)
         {
             try
             {
-                using (Connection)
+                using (var connection = Connection)
                 {
-                    Connection.Open();
-                    using (SqlCommand cmd = new(query, Connection))
+                    connection.Open();
+                    using (SqlCommand cmd = new(query, connection))
                     {
-                        AddParameters(cmd, parameters);
+                        if (parameters != null)
+                            AddParameters(cmd, parameters);
                         var response = cmd.ExecuteNonQuery();
                         return response > 0;
                     }
@@ -132,20 +125,8 @@ namespace MSSTU.DB.Utility
             }
         }
 
-        /// <summary>
-        ///     Esegue una query di lettura nel database e restituisce il primo record
-        /// </summary>
-        /// <param name="query">
-        ///    Query parametrizzata da eseguire
-        /// </param>
-        /// <param name="parameters">
-        ///    Parametri della query
-        /// </param>
-        /// <returns>
-        ///     Un <see cref="Dictionary{TKey, TValue}" /> con i valori del primo record, <see langword="null" /> se non ci
-        ///     sono record
-        /// </returns>
-        public Dictionary<string, string>? ReadOneDb(string query, Dictionary<string, object> parameters)
+        /// <inheritdoc cref="IDatabase.ReadOneDb"/>
+        public Dictionary<string, string>? ReadOneDb(string query, Dictionary<string, object>? parameters = null)
         {
             try
             {
@@ -158,8 +139,9 @@ namespace MSSTU.DB.Utility
             }
         }
 
-        private void AddParameters(SqlCommand cmd, Dictionary<string, object> parameters)
+        private void AddParameters(SqlCommand cmd, Dictionary<string, object>? parameters)
         {
+            if (parameters == null) return;
             foreach (var param in parameters)
             {
                 cmd.Parameters.AddWithValue(param.Key, param.Value);
