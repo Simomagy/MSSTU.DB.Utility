@@ -8,7 +8,7 @@
         <Nullable>enable</Nullable>
         <PackageId>MSSTU.DB.Utility</PackageId>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>2.1.3</Version>
+        <Version>2.1.7</Version>
         <Title>MS Studios Database Utility Library</Title>
         <Authors>MS_Studios</Authors>
         <Description>Basic library for MSSQL interface</Description>
@@ -16,21 +16,18 @@
         <PackageIcon>base-light.png</PackageIcon>
         <Company>MS Studios</Company>
         <Product>MSSTU.DB.Utility</Product>
-        <AssemblyVersion>2.1.3</AssemblyVersion>
+        <AssemblyVersion>2.1.7</AssemblyVersion>
         <NeutralLanguage>en</NeutralLanguage>
         <AssemblyName>MSSTU.DB.Utility</AssemblyName>
-        <PackageReleaseNotes>[2.1.0]
-Added query params requirement.
-[2.1.1]
-Fixed SQL Connection string
-[2.1.2]
-Made parameters null by default</PackageReleaseNotes>
+        <PackageReleaseNotes>[2.1.7]
+Fixed -&gt; Not closing db connections</PackageReleaseNotes>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
         <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryUrl>https://github.com/Simomagy/MSSTU.DB.Utility</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>msstu, database, mssql, library, doita</PackageTags>
+        <FileVersion>2.1.7</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>

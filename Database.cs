@@ -79,6 +79,7 @@ namespace MSSTU.DB.Utility
                                 }
                                 response.Add(line);
                             }
+                            connection.Close();
                             return response;
                         }
                     }
@@ -87,11 +88,13 @@ namespace MSSTU.DB.Utility
             catch (SqlException e)
             {
                 Console.WriteLine($"{e.Message}\n {query} ");
+                _connection.Close();
                 return null;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _connection.Close();
                 return null;
             }
         }
@@ -109,6 +112,7 @@ namespace MSSTU.DB.Utility
                         if (parameters != null)
                             AddParameters(cmd, parameters);
                         var response = cmd.ExecuteNonQuery();
+                        connection.Close();
                         return response > 0;
                     }
                 }
@@ -116,11 +120,13 @@ namespace MSSTU.DB.Utility
             catch (SqlException e)
             {
                 Console.WriteLine($"{e.Message}\n {query} ");
+                _connection.Close();
                 return false;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _connection.Close();
                 return false;
             }
         }

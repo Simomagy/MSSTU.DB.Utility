@@ -72,7 +72,7 @@ namespace MSSTU.DB.Utility
             foreach (var property in GetType().GetProperties())
             {
                 var pName = property.Name.ToLower();
-                if (!line.TryGetValue(pName, out var valore))
+                if (!line.TryGetValue(pName, out var valore) || string.IsNullOrEmpty(valore))
                     continue;
 
                 try
@@ -108,7 +108,8 @@ namespace MSSTU.DB.Utility
                         var convertedValue = converter.ConvertFromString(null, CultureInfo.CurrentCulture, valore);
                         property.SetValue(this, convertedValue);
                     }
-                } catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine($"Errore durante la conversione della proprietà '{property.Name}': {ex.Message}");
                 }
